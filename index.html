@@ -32,10 +32,20 @@
         <div>
             <div>
                 <button onclick="resetEditorCamera()">Reset camera</button> |
+
                 <button onclick="addTerrain()">Thêm poly</button>
                 <button onclick="deleteSelectedTerrain()">Xóa poly</button>
                 <button onclick="rotateSelectedTerrain()">Xoay poly</button>
-                <button onclick="cloneSelectedTerrain()">Nhân bản poly</button>
+                <button onclick="cloneSelectedTerrain()">Nhân bản poly</button> | 
+
+                <label for="terrain-type">Loại</label>
+                <select name="type" id="terrain-type" onchange="changeTypeOfSelectedTerrain(this)">
+                    <option value="wall">Tường</option>
+                    <option value="brush">Bụi</option>
+                    <option value="water">Nước</option>
+                    <option value="turret1">Trụ team 1</option>
+                    <option value="turret2">Trụ team 2</option>
+                </select>
             </div>
 
             <hr>
@@ -69,6 +79,7 @@
                     </button>
                     <button onclick="showOnline()">Online?</button>
                     <button onclick="exportMapDataMinified()">Export...</button>
+                    <button onclick="exportMapDataFull()">Export Raw...</button>
                 </span>
             </div>
         </div>
