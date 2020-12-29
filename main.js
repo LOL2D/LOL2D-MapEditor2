@@ -932,9 +932,12 @@ function getFormattedDate() {
   let minute = date.getMinutes();
   let second = date.getSeconds();
 
-  var str = `${year}/${month}/${day}/${hour}:${minute}:${second}`;
+  var str = `${year}/${month}/${day}/${addZero(hour)}:${addZero(minute)}:${addZero(second)}`;
 
   return str;
+}
+function addZero(n) {
+  return n < 10 ? "0" + n : n;
 }
 function isMouseInCanvas(event) {
   return (
