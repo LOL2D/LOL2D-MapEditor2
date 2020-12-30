@@ -283,8 +283,7 @@ function drawMap(_editor) {
 
     // polygon
     drawTerrain(
-      terrain.polygon,
-      terrain.position,
+      terrain,
       isSelected,
       isSelected,
       getColorBaseOnType(terrain.type)
@@ -292,7 +291,7 @@ function drawMap(_editor) {
 
     // polygons
     if (isHovered || isSelected) {
-      drawTerrainColor(terrain.polygons, terrain.position, isSelected);
+      drawTerrainColor(terrain, isSelected);
     }
 
     // decomp polygon
@@ -625,20 +624,28 @@ function exportMapDataMinified() {
   let turret2 = [];
 
   for (let terrain of editor.terrains) {
-    for (let poly of terrain.polygons) {
-      let polyData = [];
-      for (let point of poly) {
-        polyData.push([
-          point[0] + terrain.position[0],
-          point[1] + terrain.position[1],
-        ]);
-      }
+    // turret
+    if (terrain.type == "turret1") {
+      turret1.push(terrain.position);
+    } else if (terrain.type == "turret2") {
+      turret2.push(terrain.position);
+    }
 
-      if (!terrain.type || terrain.type == "wall") wall.push(polyData);
-      else if (terrain.type == "brush") brush.push(polyData);
-      else if (terrain.type == "water") water.push(polyData);
-      else if (terrain.type == "turret1") turret1.push(polyData);
-      else if (terrain.type == "turret2") turret2.push(polyData);
+    // brush, wall, water
+    else {
+      for (let poly of terrain.polygons) {
+        let polyData = [];
+        for (let point of poly) {
+          polyData.push([
+            point[0] + terrain.position[0],
+            point[1] + terrain.position[1],
+          ]);
+        }
+
+        if (!terrain.type || terrain.type == "wall") wall.push(polyData);
+        else if (terrain.type == "brush") brush.push(polyData);
+        else if (terrain.type == "water") water.push(polyData);
+      }
     }
   }
 
@@ -810,19 +817,25 @@ function deletePointFromPolygon(poly, point) {
   poly.splice(poly.indexOf(point), 1);
 }
 function drawTerrain(
-  poly,
-  offset = [0, 0],
+  terrain,
   isDrawDots = false,
   isDrawIndex = false,
   fillColor = "#0000"
 ) {
+  if (terrain.type == "turret1" || terrain.type == "turret2") {
+    fill(getColorBaseOnType(terrain.type));
+    stroke("#555");
+    circle(terrain.position[0], terrain.position[1], 100);
+    return;
+  }
+
   stroke("#fff9");
   fill(fillColor);
 
   // shape
   beginShape();
-  for (let p of poly) {
-    vertex(p[0] + offset[0], p[1] + offset[1]);
+  for (let p of terrain.polygon) {
+    vertex(p[0] + terrain.position[0], p[1] + terrain.position[1]);
   }
   endShape(CLOSE);
 
@@ -830,8 +843,8 @@ function drawTerrain(
   if (isDrawDots) {
     noStroke();
     fill("#f009");
-    for (let p of poly) {
-      circle(p[0] + offset[0], p[1] + offset[1], 10);
+    for (let p of terrain.polygon) {
+      circle(p[0] + terrain.position[0], p[1] + terrain.position[1], 10);
     }
   }
 
@@ -840,18 +853,55 @@ function drawTerrain(
     noStroke();
     fill("#fff9");
     let index = 0;
-    for (let p of poly) {
-      text(index, p[0] + offset[0], p[1] + offset[1] - 10);
+    for (let p of terrain.polygon) {
+      text(index, p[0] + terrain.position[0], p[1] + terrain.position[1] - 10);
       index++;
     }
   }
 }
-function drawTerrainColor(listPolygons, offset, hightlight) {
+function drawTerrainColor(terrain, hightlight) {
+  if (terrain.type == "turret1" || terrain.type == "turret2") {
+    fill(getColorBaseOnType(terrain.type));
+    stroke(hightlight ? "#fff" : "#555");
+    circle(terrain.position[0], terrain.position[1], 100);
+    return;
+  }
+
   let c = ["#fff5", "#0f05", "#00f5", "#f005", "#ff05", "#0ff5"];
 
   let colorIndex = 0;
-  for (let poly of listPolygons) {
-    drawTerrain(poly, offset, hightlight, false, c[colorIndex]);
+  for (let poly of terrain.polygons) {
+    stroke("#fff9");
+    fill(c[colorIndex]);
+
+    // shape
+    beginShape();
+    for (let p of poly) {
+      vertex(p[0] + terrain.position[0], p[1] + terrain.position[1]);
+    }
+    endShape(CLOSE);
+
+    // points + index
+    if (hightlight) {
+      noStroke();
+      fill("#f009");
+      for (let p of poly) {
+        circle(p[0] + terrain.position[0], p[1] + terrain.position[1], 10);
+      }
+
+      noStroke();
+      fill("#fff9");
+      let index = 0;
+      for (let p of poly) {
+        text(
+          index,
+          p[0] + terrain.position[0],
+          p[1] + terrain.position[1] - 10
+        );
+        index++;
+      }
+    }
+
     colorIndex++;
 
     if (colorIndex >= c.length) colorIndex = 0;
@@ -932,7 +982,9 @@ function getFormattedDate() {
   let minute = date.getMinutes();
   let second = date.getSeconds();
 
-  var str = `${year}/${month}/${day}/${addZero(hour)}:${addZero(minute)}:${addZero(second)}`;
+  var str = `${year}/${month}/${day}/${addZero(hour)}:${addZero(
+    minute
+  )}:${addZero(second)}`;
 
   return str;
 }
