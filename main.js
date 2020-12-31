@@ -909,6 +909,7 @@ function decompPolygon(poly) {
 
 // ==================== util ===================
 function getHoveredTerrain(m, terrains) {
+  let hovereds = [];
   for (let terrain of terrains) {
     // not decomp yet
     if (terrain.polygons.length == 0) {
@@ -920,7 +921,7 @@ function getHoveredTerrain(m, terrains) {
           )
       );
 
-      if (isMouseInPoly(m, SATvertices)) return terrain;
+      if (isMouseInPoly(m, SATvertices)) hovereds.push(terrain);
     }
 
     // decomped
@@ -934,12 +935,25 @@ function getHoveredTerrain(m, terrains) {
             )
         );
 
-        if (isMouseInPoly(m, SATvertices)) return terrain;
+        if (isMouseInPoly(m, SATvertices)) hovereds.push(terrain);
       }
     }
   }
 
-  return null;
+  let result = null;
+
+  // check if mouse is hover multiple terrain
+  if (hovereds.length > 0) {
+    result = hovereds[0];
+
+    for (let t of hovereds) {
+      if (result.type == "water" && t.type != "water") {
+        result = t;
+      }
+    }
+  }
+
+  return result;
 }
 function isMouseInPoly(m, SATvertices) {
   let SATpolygon = new SAT.Polygon(new SAT.Vector(), SATvertices);
