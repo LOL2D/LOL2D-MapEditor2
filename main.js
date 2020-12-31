@@ -881,24 +881,12 @@ function drawTerrainColor(terrain, hightlight) {
     }
     endShape(CLOSE);
 
-    // points + index
+    // points
     if (hightlight) {
       noStroke();
       fill("#f009");
       for (let p of poly) {
         circle(p[0] + terrain.position[0], p[1] + terrain.position[1], 10);
-      }
-
-      noStroke();
-      fill("#fff9");
-      let index = 0;
-      for (let p of poly) {
-        text(
-          index,
-          p[0] + terrain.position[0],
-          p[1] + terrain.position[1] - 10
-        );
-        index++;
       }
     }
 
