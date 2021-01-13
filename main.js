@@ -274,20 +274,20 @@ function drawMap(_editor) {
     let isHovered = _editor.terrainHovered == terrain;
     let isSelected = _editor.terrainSelected == terrain;
 
+    // polygon
+    drawTerrain(
+      terrain,
+      isSelected,
+      isSelected,
+      getColorBaseOnType(terrain.type, isHovered || isSelected)
+    );
+
     // position
     if (isHovered || isSelected) {
       stroke("yellow");
       noFill();
       circle(terrain.position[0], terrain.position[1], 20);
     }
-
-    // polygon
-    drawTerrain(
-      terrain,
-      isSelected,
-      isSelected,
-      getColorBaseOnType(terrain.type)
-    );
 
     // polygons
     if (isHovered || isSelected) {
@@ -822,40 +822,41 @@ function drawTerrain(
   isDrawIndex = false,
   fillColor = "#0000"
 ) {
-  if (terrain.type == "turret1" || terrain.type == "turret2") {
-    fill(getColorBaseOnType(terrain.type));
-    stroke("#555");
-    circle(terrain.position[0], terrain.position[1], 100);
-    return;
-  }
-
   stroke("#fff9");
   fill(fillColor);
 
-  // shape
-  beginShape();
-  for (let p of terrain.polygon) {
-    vertex(p[0] + terrain.position[0], p[1] + terrain.position[1]);
-  }
-  endShape(CLOSE);
-
-  // points
-  if (isDrawDots) {
-    noStroke();
-    fill("#f009");
+  if (terrain.type == "turret1" || terrain.type == "turret2") {
+    circle(terrain.position[0], terrain.position[1], 100);
+  } else {
+    // shape
+    beginShape();
     for (let p of terrain.polygon) {
-      circle(p[0] + terrain.position[0], p[1] + terrain.position[1], 10);
+      vertex(p[0] + terrain.position[0], p[1] + terrain.position[1]);
     }
-  }
+    endShape(CLOSE);
 
-  // index
-  if (isDrawIndex) {
-    noStroke();
-    fill("#fff9");
-    let index = 0;
-    for (let p of terrain.polygon) {
-      text(index, p[0] + terrain.position[0], p[1] + terrain.position[1] - 10);
-      index++;
+    // points
+    if (isDrawDots) {
+      noStroke();
+      fill("#f009");
+      for (let p of terrain.polygon) {
+        circle(p[0] + terrain.position[0], p[1] + terrain.position[1], 10);
+      }
+    }
+
+    // index
+    if (isDrawIndex) {
+      noStroke();
+      fill("#fff9");
+      let index = 0;
+      for (let p of terrain.polygon) {
+        text(
+          index,
+          p[0] + terrain.position[0],
+          p[1] + terrain.position[1] - 10
+        );
+        index++;
+      }
     }
   }
 }
@@ -999,24 +1000,27 @@ function isMouseInCanvas(event) {
     !(mouseX < 0 || mouseX > width || mouseY < 0 || mouseY > height)
   );
 }
-function getColorBaseOnType(type) {
+function getColorBaseOnType(type, isHightlight) {
+  let c = "";
   if (!type || type == "wall") {
-    return "#0000";
+    c = "#666";
   }
 
   if (type == "brush") {
-    return "#0f05";
+    c = "#0f0";
   }
 
   if (type == "water") {
-    return "#26c9ff55";
+    c = "#3cf";
   }
 
   if (type == "turret1") {
-    return "#00f5";
+    c = "#00f";
   }
 
   if (type == "turret2") {
-    return "#f0f5";
+    c = "#f0f";
   }
+
+  return c + (isHightlight ? "f" : "5");
 }
